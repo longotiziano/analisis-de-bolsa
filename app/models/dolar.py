@@ -1,28 +1,50 @@
+from app.utils.requests import realizar_request, requests_headers
 from bs4 import BeautifulSoup
 import requests
+from typing import Tuple
 
 class Dolar:
     """
     Esta clase contiene los objetos del dolar, con sus atributos y métodos
     """
     def __init__(self):
-        pass
+        self.valor = 0
 
-    def obtener_cotizacion_api(self):
-        '''
-        Obtengo la cotización del dólar en pesos argentinos desde la API de Dolarsi
-        '''
-        url_api = "https://www.dolarsi.com/api/api.php?type=valoresprincipales"
+    def web_scrap_dolar(self) -> Tuple[bool, float | None]:
+        """
+        Realizar web scraping para obtener el valor del dólar desde la página www.dolarhoy.com
+        Retorna:
+        - (True, valor del dólar) si la extracción fue exitosa
+        - (False, None) si ocurrió algún error
+        """
+        url_web = "https://www.dolarhoy.com/"
 
-        headers = {"User-Agent": "Mozilla/5.0"}
+        request_ok, soup = realizar_request(url_web, 'html')
+        if not request_ok:
+            return False, None
+
+        # Buscamos el bloque principal del dólar blue
+        blue_block = soup.find("div", class_="tile is-child")
+        if not blue_block:
+            return False, None
+
+        valor_div = blue_block.find("div", class_="val")
+        if not valor_div:
+            return False, None
+
+        valor_dolar = valor_div.get_text(strip=True)
         
-        try:
-            response = requests.get(url_api, headers=headers, timeout=5)
-            response.raise_for_status()
-            data = response.json()
-            print(data)
-        except requests.exceptions.RequestException as e:
-            print("Error en la request:", e)
-
+        # Hago la conversión a float
+        valor_dolar = float(valor_dolar[1:])
+        return True, valor_dolar
+        
+    def obtener_valor_dolar():
+        """
+        Esta función obtiene el valor del dólar blue del día de hoy, intentando primero en
+        una API directa, y en caso de error en la conexión se obtiene desde el HTML de una
+        página web
+        """
+        
 x = Dolar()
-x.obtener_cotizacion_api()
+print(x.web_scrap_dolar())
+

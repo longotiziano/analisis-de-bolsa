@@ -17,3 +17,4 @@ personales, organización y curiosidad sobre el area.
     - Containerización con **Docker**, para un flujo lo más profesional posible
     - Generación de gráficos automática con **Seaborn y matplotlib**
     - Uso de **PySpark** para el procesamiento de datos 
+
