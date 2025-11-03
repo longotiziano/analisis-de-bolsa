@@ -1,14 +1,24 @@
-from app.utils.requests import realizar_request, requests_headers
-from bs4 import BeautifulSoup
-import requests
+from app.utils.requests import realizar_request
 from typing import Tuple
+
+
+from logs.config import LOGGING_CONFIG
+from logging.config import dictConfig
+import logging
+dictConfig(LOGGING_CONFIG)
+log = logging.getLogger("project_logger")
+print(log.handlers)
+
 
 class Dolar:
     """
     Esta clase contiene los objetos del dolar, con sus atributos y métodos
     """
+    url_dolarhoy = "https://www.dolarhoy.com/"
+    url_dolarapi = "https://dolarapi.com/v1/dolares/blue"
+
     def __init__(self):
-        self.valor = 0
+        _, self.valor_venta = self.obtener_dolar_api() 
 
     def web_scrap_dolar(self) -> Tuple[bool, float | None]:
         """
@@ -17,9 +27,7 @@ class Dolar:
         - (True, valor del dólar) si la extracción fue exitosa
         - (False, None) si ocurrió algún error
         """
-        url_web = "https://www.dolarhoy.com/"
-
-        request_ok, soup = realizar_request(url_web, 'html')
+        request_ok, soup = realizar_request(self.url_dolarhoy, 'html')
         if not request_ok:
             return False, None
 
@@ -38,13 +46,19 @@ class Dolar:
         valor_dolar = float(valor_dolar[1:])
         return True, valor_dolar
         
-    def obtener_valor_dolar():
+    def obtener_dolar_api(self) -> Tuple[bool, float | None]: 
         """
-        Esta función obtiene el valor del dólar blue del día de hoy, intentando primero en
-        una API directa, y en caso de error en la conexión se obtiene desde el HTML de una
-        página web
+        Esta función obtiene el valor del dólar blue del día de hoy, realizando
+        una conexión con la API de www.dolar.api
         """
+        request_ok, data = realizar_request(self.url_dolarapi, 'api')
+        if not request_ok:
+            return False, None
         
-x = Dolar()
-print(x.web_scrap_dolar())
+        dolar_venta = float(data.get("venta"))
+        return True, dolar_venta
+
+x=Dolar()
+print(x.valor_venta)
+        
 
