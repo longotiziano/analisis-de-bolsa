@@ -1,14 +1,8 @@
 from app.utils.requests import realizar_request
 from typing import Tuple
 
-
-from logs.config import LOGGING_CONFIG
-from logging.config import dictConfig
-import logging
-dictConfig(LOGGING_CONFIG)
-log = logging.getLogger("project_logger")
-print(log.handlers)
-
+from logs.loggers import iniciar_logger
+log = iniciar_logger(__name__)
 
 class Dolar:
     """
@@ -29,21 +23,31 @@ class Dolar:
         """
         request_ok, soup = realizar_request(self.url_dolarhoy, 'html')
         if not request_ok:
+            # El log ya lo maneja la función auxiliar
             return False, None
 
         # Buscamos el bloque principal del dólar blue
-        blue_block = soup.find("div", class_="tile is-child")
+        block_find = "tile is-child"
+        blue_block = soup.find("div", class_=block_find)
         if not blue_block:
+            log.error('No se encontró el bloque: %s - URL: %s', block_find, self.url_dolarhoy)
             return False, None
 
-        valor_div = blue_block.find("div", class_="val")
+        block_find = "val"
+        valor_div = blue_block.find("div", class_=block_find)
         if not valor_div:
+            log.error('No se encontró el bloque: %s - URL: %s', block_find, self.url_dolarhoy)
             return False, None
-
-        valor_dolar = valor_div.get_text(strip=True)
         
-        # Hago la conversión a float
-        valor_dolar = float(valor_dolar[1:])
+        # Intento la conversión a float
+        try:
+            valor_dolar = valor_div.get_text(strip=True)
+            valor_dolar = float(valor_dolar[1:])
+        except Exception as e:
+            log.exception("Error al convertir el valor del dólar - URL: %s - error: %s", self.url_dolarhoy, e)
+            return False, None
+        
+        log.info("Scraping realizado correctamente - bloque: %s - URL: %s", block_find, self.url_dolarhoy)
         return True, valor_dolar
         
     def obtener_dolar_api(self) -> Tuple[bool, float | None]: 
@@ -57,8 +61,5 @@ class Dolar:
         
         dolar_venta = float(data.get("venta"))
         return True, dolar_venta
-
-x=Dolar()
-print(x.valor_venta)
         
 

@@ -1,2 +1,7 @@
 requests
 beautifulsoup4
+pandas
+lxml
+html5lib
+requests-html
+lxml_html_clean

@@ -7,3 +7,4 @@ con retornos de tuplas de tipo booleano y valor.
     - **WARNING**
     - **ERROR**: Se desarrollarán en las funciones auxiliares y pequeñas, de manera tal que capturen el error lo antes posible
     - **CRITICAL**
+- Al momento de orquestar el flujo con Airflow, simplemente agregamos a su sistema de logging el header `file_csv`.

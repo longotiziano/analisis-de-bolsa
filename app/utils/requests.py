@@ -2,12 +2,8 @@ from bs4 import BeautifulSoup
 import requests 
 from typing import Any, Literal, Tuple
 
-
-
-
-
-import logging
-log = logging.getLogger("project_logger")
+from logs.loggers import iniciar_logger
+log = iniciar_logger(__name__)
 
 requests_headers = {
     "User-Agent": (
@@ -34,6 +30,7 @@ def realizar_request(
         log.exception("Error durante la request a %s", url)
         return False, None
 
+    # En caso de tratarse de una request a una API
     if tipo_request == 'api':    
         try:
             data = response.json()
@@ -41,11 +38,12 @@ def realizar_request(
             log.error("Error durante la codificación a JSON. Respuesta: %s", response.text[:200])
             return False, None
     
+    # Y en caso de buscar web scraping
     elif tipo_request == 'html':
-        data = BeautifulSoup(response.text, 'html.parser')
+        data = BeautifulSoup(response.text, 'lxml')
     else:
         log.error("Tipo de request inválido: %s", tipo_request)
         return False, None
     
-    log.debug("Request realizada correctamente - tipo: %s - URL: %s", tipo_request, url)
+    log.info("Request realizada correctamente - tipo: %s - URL: %s", tipo_request, url)
     return True, data

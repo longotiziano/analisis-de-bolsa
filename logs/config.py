@@ -4,6 +4,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 CSV_LOG_FILE = BASE_DIR / "logs" / "logs.csv"
 
+# Creo el .csv en el cual se guardarán los logs
 if not os.path.exists(CSV_LOG_FILE):
     with open(CSV_LOG_FILE, "w", newline="") as f:
         f.write('"timestamp","logger","level","message"\n')
@@ -33,11 +34,8 @@ LOGGING_CONFIG = {
             "mode": "a",
         },
     },
-    "loggers": {
-        "project_logger": {
-            "handlers": ["console", "csv_file"],
-            "level": "DEBUG",  # Nivel mínimo del logger
-            "propagate": True  # Propaga logs a loggers padres
-        }
+    "root": {  # Logger raíz, abarca todo el proyecto
+        "handlers": ["console", "csv_file"],
+        "level": "DEBUG"
     }
 }
