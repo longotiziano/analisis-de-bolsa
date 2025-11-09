@@ -26,5 +26,23 @@ services:
       - ../.env
     volumes:
       - ../:/analisis-de-bolsa 
+    services:
+  scraper:
+    build:
+      context: ./scraper
+    container_name: dinamic_scraper
+    restart: "no"              # Se apaga al terminar
+    cpus: 1                    # Limita el uso de CPU
+    mem_limit: 1g              # Limita RAM a 1 GB
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./data:/app/data       # Guardás resultados en la carpeta local ./data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 volumes:
   pgdata:

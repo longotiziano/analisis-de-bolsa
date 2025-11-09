@@ -13,7 +13,7 @@ class Lecaps:
     """
     url_data912 = "https://data912.com/live/arg_notes"
     url_gob_argentina = "https://www.argentina.gob.ar/economia/noticias"
-
+    url_acuantoesta = "https://www.acuantoesta.com.ar/lecaps"
 
     def __init__(self):
         pass
@@ -69,71 +69,14 @@ class Lecaps:
         
         log.debug("Letra %s -> %s/%s/%s", letra, dia, mes, año)
         return True, date(año, mes, dia)
-
-
-    def _calcular_tna(
-            self, 
-            tirea: float | None,
-            valor_vto: float | None, 
-            precio_actual: float | None, 
-            plazo_dias: int | None
-            ) -> float | None:
-        """
-        Devuelve la TNA (Tasa Nominal Anual) de una letra.
-        - Si se proporciona la TIREA (tasa efectiva anual), la convierte directamente.
-        - Si no, la calcula a partir del valor de vencimiento, precio actual y plazo en días.
-        """
-        if tirea:
-            # Primero calculo la TEM y, con ese dato, la TNA
-            tem = (1 + tirea) ** (1/12) - 1 
-            tna = tem * 12 
-            log.debug('TNA calculada -> TEM: %s | TNA: %s', tem, tna)
-            return tna
-
-        # Me aseguro que no haya faltantes
-        valores = {
-        "valor_vto": valor_vto,
-        "precio_actual": precio_actual,
-        "plazo_dias": plazo_dias
-        }
-
-        faltantes = [n for n, v in valores.items() if v is None]
-        if faltantes:
-            log.warning('No se pudo calcular la TNA de la LECAP, faltan los datos: %s', ", ".join(faltantes))
-            return None
-        
-        # Este bloque de código quedó sin testear debido a no encontrar la información
-        tna = ((valor_vto / precio_actual) - 1) * (365 / plazo_dias)
-        log.debug(
-        "TNA calculada -> valor_vto: %.2f | precio_actual: %.2f | plazo_dias: %d | TNA: %.4f",
-        valor_vto, precio_actual, plazo_dias, tna
-        )
-        return tna
     
 
-    def _obtener_tirea(self) -> Tuple[bool, pd.DataFrame | None]:
+    def _scrapear_df_letras(self) -> Tuple[bool, pd.DataFrame | None]:
         """
-        Obtengo la TIREA (tasa efectiva anual) de LECAPs mediante scraping a la página oficial del gobierno
-        de la Argentina, buscando aquellas noticias con título "Resultado de licitación", donde dentro de
-        esos sitios se encontrarán las diversas TIREAs
+        Realiza un scraping de la página dinámica https://www.acuantoesta.com.ar/lecaps para
+        obtener un DataFrame con más información.
         """
-        request_ok, soup = realizar_request(self.url_gob_argentina, 'html')
-        if not request_ok:
-            # El log ya lo maneja la función auxiliar
-            return False, None
         
-        # Palabras clave que quiero encontrar en las noticias
-        palabras_clave = ['resultado', 'licitacion', 'lecap']
-
-        id_noticias = 'divnoticias'
-        block_noticias = soup.find("div", id=id_noticias)
-        if not block_noticias:
-            log.error('No se encontró el bloque: %s - URL: %s', id_noticias, self.url_gob_argentina)
-            return False, None
-        
-        filas_noticias = block_noticias.find_all("div", class_="row panels-row")
-        print(len(filas_noticias))
-
 
     def procesar_df_letras(self, df_letras: pd.DataFrame) -> pd.DataFrame:
         """
