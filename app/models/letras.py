@@ -98,9 +98,4 @@ class Lecaps:
         # Calculo plazo en días
         df_letras_limpio["plazo_dias"] = df_letras_limpio["vencimiento"].apply(obtener_plazo_dias)
 
-        # Calculo TNA
-        df_letras_limpio["tna"] = df_letras_limpio.apply(
-            lambda row: self._calcular_tna(100.0, row["precio"], row["plazo_dias"]), axis=1
-        )
-
         return df_letras_limpio[["letra", "precio", "vencimiento", "plazo_dias", "tna"]].sort_values(by="plazo_dias", ascending=True)

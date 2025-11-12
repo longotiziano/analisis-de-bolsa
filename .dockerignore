@@ -1,0 +1,15 @@
+# Control de versiones
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Variables de entorno
+.env
+.venv/
+venv/
+env/
